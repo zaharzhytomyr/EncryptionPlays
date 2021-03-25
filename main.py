@@ -1,4 +1,6 @@
 sample_str = "Еврей, еще и обновленец-таких не любил; вопрос: как он ужился там в 23.04.1965?В 78м он уехал."
+sample_key_1 = '1256347' 
+sample_key_2 = '1473265'
 
 def array_to_str(arr) -> str:
   res = ""
@@ -77,7 +79,7 @@ def decode_no_key_permutation(text : str, rows : int = 7, cols : int = 7):
   return res
 
 def encode_one_key_permutation(text : str, rows : int = 7, cols : int = 7,
-                           key : str = '0145236') -> str:
+                           key : str = '1256347') -> str:
   assert(len(key) == cols)
   key_map = {int(val) - 1: num for num, val in enumerate(key)}
   
@@ -95,7 +97,7 @@ def encode_one_key_permutation(text : str, rows : int = 7, cols : int = 7,
   return res
 
 def decode_one_key_permutation(text : str, rows : int = 7, cols : int = 7,
-                           key : str = '0145236'):
+                           key : str = '1256347'):
   assert(len(key) == cols)
   key_map = {int(val) - 1: num for num, val in enumerate(key)}
   
@@ -113,8 +115,8 @@ def decode_one_key_permutation(text : str, rows : int = 7, cols : int = 7,
   return res
 
 def encode_two_keys_permutation(text : str, rows : int = 7, cols : int = 7,
-                                key_cols : str = '0145236',
-                                key_rows : str = '0362154'):
+                                key_cols : str = '1256347',
+                                key_rows : str = '1473265'):
   assert(len(key_rows) == rows)
   key_map = {int(val) - 1: num for num, val in enumerate(key_rows)}
   text = encode_one_key_permutation(text, rows, cols, key_cols)
@@ -133,8 +135,8 @@ def encode_two_keys_permutation(text : str, rows : int = 7, cols : int = 7,
   return res
 
 def decode_two_keys_permutation(text : str, rows : int = 7, cols : int = 7,
-                                key_cols : str = '0145236',
-                                key_rows : str = '0362154'):
+                                key_cols : str = '1256347',
+                                key_rows : str = '1473265'):
   assert(len(key_rows) == rows)
   key_map = {int(val) - 1: num for num, val in enumerate(key_rows)}
 
@@ -148,38 +150,59 @@ def decode_two_keys_permutation(text : str, rows : int = 7, cols : int = 7,
     for i in key_map.keys():
       row = first_table[i]
       decoded_table[key_map[i]] = row
-    print(decoded_table)
     temp = read_table_by_rows(decoded_table, cols)
     res += decode_one_key_permutation(temp, rows, cols, key_cols)
   return res
   
 #main
-opt : int = input("Select your encryption algo :\n1 - no key permutation\n2 - one key - permutation\n3 - double key permutation: ")
-opt = int(opt)
+opt = input("Select your encryption algo :\n1 - no key permutation\n2 - one key - permutation\n3 - double key permutation: ")
+if not opt.isnumeric():
+  exit("Choose correct option: 1, or 2, or 3! 1")
+else:
+  opt = int(opt)
 if opt not in range(1, 4):
   exit("Choose correct option: 1, or 2, or 3!")
 else:
   text : str = input("Please input your text to decrypt: ")
   text = text.replace(" ", "_")
+
   rows = input("Input amount of rows for encryption table: ")
+  if not rows.isnumeric():
+    exit("Amount of rows must be an integer above zero")
   rows = int(rows)
+  if rows <= 0:
+    exit("Amount of rows must be an integer above zero")
+
   cols = input("Input amount of columns for encryption table: ")
+  if not cols.isnumeric():
+    exit("Amount of columns must be an integer above zero")
   cols = int(cols)
+  if cols <= 0:
+    exit("Amount of columns must be an integer above zero")
+
   encoded = ''
   decoded = ''
+
   if opt == 2:
-    key : str = input("Input key to decrypt: ")
+    key = input("Input key to decrypt: ")
+    if(len(key) != cols):
+      exit("Wrong key length")
     encoded = encode_one_key_permutation(text, rows, cols, key)
-    decoded = decode_one_key_permutation(text, rows, cols, key)
+    decoded = decode_one_key_permutation(encoded, rows, cols, key)
   elif opt == 3:
-    key_cols : str = input("Input 1st key to decrypt: ")
-    key_rows : str = input("Input 2nd key to decrypt: ")
+    key_cols = input("Input 1st key to decrypt: ")
+    if(len(key_cols) != cols):
+      exit("Wrong key length")
+    key_rows = input("Input 2nd key to decrypt: ")
+    if(len(key_rows) != rows):
+      exit("Wrong key length")
     encoded = encode_two_keys_permutation(text, rows, cols, key_cols, key_rows)
-    decoded = decode_two_keys_permutation(text, rows, cols, key_cols, key_rows)
+    decoded = decode_two_keys_permutation(encoded, rows, cols, key_cols, key_rows)
   elif opt == 1:
     encoded = encode_no_key_permutation(text, rows, cols)
-    decoded = decode_no_key_permutation(text, rows, cols)
-  print(encoded)
+    decoded = decode_no_key_permutation(encoded, rows, cols)
+  print("Encoded: ", encoded)
+  print("Decoded: ", decoded)
 
 
 
