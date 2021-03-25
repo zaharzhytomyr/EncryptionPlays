@@ -1,4 +1,3 @@
-#replace spaces by "_"
 sample_str = "Еврей, еще и обновленец-таких не любил; вопрос: как он ужился там в 23.04.1965?В 78м он уехал."
 
 def array_to_str(arr) -> str:
@@ -125,26 +124,67 @@ def encode_two_keys_permutation(text : str, rows : int = 7, cols : int = 7,
   for fragment in fragments:
     first_table = create_empty_table(rows, cols)
     fill_table_by_rows(first_table, fragment, rows, cols)
-    print(first_table)
 
     encoded_table = create_empty_table(rows, cols)
     for i in key_map.keys():
       row = first_table[key_map[i]]
       encoded_table[i] = row
     res += read_table_by_rows(encoded_table, rows)
-    print(encoded_table)
   return res
 
 def decode_two_keys_permutation(text : str, rows : int = 7, cols : int = 7,
                                 key_cols : str = '0145236',
                                 key_rows : str = '0362154'):
-  return NotImplemented
-  #par 1 decode rows
-  #par2 - call decode 1 key
+  assert(len(key_rows) == rows)
+  key_map = {int(val) - 1: num for num, val in enumerate(key_rows)}
 
-a = encode_one_key_permutation('abcinfopapkadoma', 4, 4, '3214')
-print(decode_one_key_permutation(a, 4, 4, '3214'))
-print(encode_two_keys_permutation('abcinfopapkadoma', 4, 4, '3214', '1342'))
+  res = ""
+  fragments = split_by_len(text, rows * cols)
+  for fragment in fragments:
+    first_table = create_empty_table(rows, cols)
+    fill_table_by_rows(first_table, fragment, rows, cols)
+
+    decoded_table = create_empty_table(rows, cols)
+    for i in key_map.keys():
+      row = first_table[i]
+      decoded_table[key_map[i]] = row
+    print(decoded_table)
+    temp = read_table_by_rows(decoded_table, cols)
+    res += decode_one_key_permutation(temp, rows, cols, key_cols)
+  return res
+  
+#main
+opt : int = input("Select your encryption algo :\n1 - no key permutation\n2 - one key - permutation\n3 - double key permutation: ")
+opt = int(opt)
+if opt not in range(1, 4):
+  exit("Choose correct option: 1, or 2, or 3!")
+else:
+  text : str = input("Please input your text to decrypt: ")
+  text = text.replace(" ", "_")
+  rows = input("Input amount of rows for encryption table: ")
+  rows = int(rows)
+  cols = input("Input amount of columns for encryption table: ")
+  cols = int(cols)
+  encoded = ''
+  decoded = ''
+  if opt == 2:
+    key : str = input("Input key to decrypt: ")
+    encoded = encode_one_key_permutation(text, rows, cols, key)
+    decoded = decode_one_key_permutation(text, rows, cols, key)
+  elif opt == 3:
+    key_cols : str = input("Input 1st key to decrypt: ")
+    key_rows : str = input("Input 2nd key to decrypt: ")
+    encoded = encode_two_keys_permutation(text, rows, cols, key_cols, key_rows)
+    decoded = decode_two_keys_permutation(text, rows, cols, key_cols, key_rows)
+  elif opt == 1:
+    encoded = encode_no_key_permutation(text, rows, cols)
+    decoded = decode_no_key_permutation(text, rows, cols)
+  print(encoded)
+
+
+
+
+
 
 
 
